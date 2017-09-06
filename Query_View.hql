@@ -1,0 +1,12 @@
+create schema ${hiveconf:DB_NAME};
+show schemas;
+use ${hiveconf:DB_NAME};
+CREATE TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} (lid INT, lname STRING) PARTITIONED BY(dt DATE) ;
+ALTER TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} CHANGE COLUMN lname shopname STRING;
+INSERT INTO TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} PARTITION(dt='2017-07-08') VALUES (11,'A11');
+INSERT INTO TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} PARTITION(dt='2017-07-09') VALUES (12,'A12');
+INSERT INTO TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} PARTITION(dt='2017-07-09') VALUES (15,'A15');
+INSERT INTO TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} PARTITION(dt='2017-09-05') VALUES (13,'A13');
+INSERT INTO TABLE ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME} PARTITION(dt='2017-09-05') VALUES (29,'A29');
+CREATE VIEW View_Liquor as select lid,shopname from ${hiveconf:DB_NAME}.${hiveconf:TABLE_NAME}  WHERE dt=current_date;
+SELECT * from View_Liquor;
