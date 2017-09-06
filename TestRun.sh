@@ -34,12 +34,12 @@ read -rsp $'Press any key to continue to next test case ...' -n1 key
 # Test Case 2 : Hive External Database Creation
 
 echo 'Test Case 2 : Creation of HIVE External database and Tables'
-FILE=/home/test.act.gov.au/1958783770/TestScripts/Choose.properties
+FILE=/home/TestScripts/Choose.properties
 extdbname=$(grep -i 'ExtDatabaseName' $FILE  | cut -f2 -d'=')
 exttablename=$(grep -i 'ExtTableName' $FILE  | cut -f2 -d'=')
 echo "Creating an external database - " $extdbname
 echo  "and an external Hive table - " $exttablename
-hive -hiveconf DB_NAME=$extdbname -hiveconf TABLE_NAME=$exttablename -f /home/test.act.gov.au/1958783770/TestScripts/Query_External.hql
+hive -hiveconf DB_NAME=$extdbname -hiveconf TABLE_NAME=$exttablename -f /home/TestScripts/Query_External.hql
 #clear
 echo -e '\n External database and table creation successful; Hive view is created ; \n Perform Querying operations in Hive'
 read -rsp $'Press any key to continue...to drop \ partition n' -n1 key
@@ -51,7 +51,7 @@ echo 'Test Pass'
 # Test Case 3 : Create HIVE view to point to current parittion
 
 echo 'Test Case 3 : Creation of HIVE View that points to current partition'
-FILE=/home/test.act.gov.au/1958783770/TestScripts/Choose.properties
+FILE=/home/TestScripts/Choose.properties
 hdbname=$(grep -i 'HDatabaseName' $FILE  | cut -f2 -d'=')
 htablename=$(grep -i 'HTableName' $FILE  | cut -f2 -d'=')
 hviewname=$(grep -i 'HViewName' $FILE  | cut -f2 -d'=')
