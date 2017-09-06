@@ -16,11 +16,11 @@ dbname=$(grep -i 'DatabaseName' $FILE  | cut -f2 -d'=')
 tablename=$(grep -i 'TableName' $FILE  | cut -f2 -d'=')
 echo "Creating an internal database - " $dbname
 echo  "and an internal Hive table - " $tablename
-hive -hiveconf DB_NAME=$dbname -hiveconf TABLE_NAME=$tablename -f /home/test.act.gov.au/1958783770/TestScripts/Query.hql
+hive -hiveconf DB_NAME=$dbname -hiveconf TABLE_NAME=$tablename -f /TestScripts/Query.hql
 clear
 echo 'CrashDB was created; Crash is the table name; View has been created; Go to Hue to perform querying operations in Hive'
 read -rsp $'Press any key to continue...to drop table, view and database\n' -n1 key
-hive -hiveconf DB_NAME=$dbname -hiveconf TABLE_NAME=$tablename -f /home/test.act.gov.au/1958783770/TestScripts/QueryPurge.hql
+hive -hiveconf DB_NAME=$dbname -hiveconf TABLE_NAME=$tablename -f /TestScripts/QueryPurge.hql
 # Need validation Code here : Future development
 echo 'Database has been purged'
 echo 'Test Pass'
@@ -43,7 +43,7 @@ hive -hiveconf DB_NAME=$extdbname -hiveconf TABLE_NAME=$exttablename -f /home/te
 #clear
 echo -e '\n External database and table creation successful; Hive view is created ; \n Perform Querying operations in Hive'
 read -rsp $'Press any key to continue...to drop \ partition n' -n1 key
-hive -hiveconf DB_NAME=$extdbname -hiveconf TABLE_NAME=$exttablename -f /home/test.act.gov.au/1958783770/TestScripts/QueryExtPurge.hql
+hive -hiveconf DB_NAME=$extdbname -hiveconf TABLE_NAME=$exttablename -f /TestScripts/QueryExtPurge.hql
 echo 'One parition is dropped'
 # Need validation Code here : Future development
 echo 'Test Pass'
@@ -57,7 +57,7 @@ htablename=$(grep -i 'HTableName' $FILE  | cut -f2 -d'=')
 hviewname=$(grep -i 'HViewName' $FILE  | cut -f2 -d'=')
 echo "Creating an nternal  database - " $hdbname
 echo  "and an internal Hive table - " $htablename
-hive -hiveconf DB_NAME=$hdbname -hiveconf TABLE_NAME=$htablename hiveconf VIEW_NAME=$hviewname -f /home/test.act.gov.au/1958783770/TestScripts/Query_View.hql
+hive -hiveconf DB_NAME=$hdbname -hiveconf TABLE_NAME=$htablename hiveconf VIEW_NAME=$hviewname -f /TestScripts/Query_View.hql
 
 # Need validation Code here : Future development
 echo 'Test Pass'
