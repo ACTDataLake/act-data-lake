@@ -17,6 +17,8 @@ Step 3. Run LogAudit_Test.sh to enbale auditing and expand the audit logs
 
 All the files shall be stored under /TestScripts directory
 
+All the steps will be automated  in the future
+
 ************************************************************
 
 
