@@ -3,8 +3,8 @@
 # Author       : Selvaraaju Murugesan
 # Date         : 14/07/2017
 # Authorsed by :
-# Last Modified:
-# Audi Log     :
+# Last Modified: 16/10/2017
+# Audi Log     : Added new code to validate some operations
 # ===============================================================================================================================
 
 
@@ -22,13 +22,11 @@ hostname -i
 echo -e "\n"
 
 
-# Test 1 : Capture the output of dashboard
-# Test case 84631
+# Test 1 : Test whether the cluster is secure or not 
 
-val=$(maprcli dashboard info -json | grep secure)
-echo "Secured Cluster ?"
-#echo $val
-if echo "$val" | grep -q "true" ; then
+searchstr="secure=rue"
+file="/opt/mapr/conf/mapr-clusters.conf"
+if grep -q "$searchstr" $file;
         echo "Cluster is Secure"
         echo "Test 1 Pass"
 else
@@ -37,7 +35,6 @@ fi
 echo -e "\n"
 
 # Test 2 : Number of Nodes
-# Test case 84631
 val=$(maprcli dashboard info -json | grep nodesUsed)
 echo "Number of Nodes"
 if echo "$val" | grep -q 3 ; then
@@ -49,7 +46,6 @@ fi
 echo -e "\n"
 
 # Test 3 : NFS Mount
-# Test case 78606
 val=$(cat /proc/mounts | grep mapr)
 #echo $val
 echo "NFS Mounted ?"
