@@ -1,4 +1,5 @@
-Directorate1
-Directorate2
-Directorate3
-Directorate4
+Data, mapr, 0, true, 120, /Data, p, p, 777
+Directorate1, mapr, 0, true, 120, /Data/Directorate1, p, p, 777
+Directorate2, mapr, 0, true, 120, /Data/Directorate2, p, p, 777
+Directorate3, mapr, 0, true, 120, /Data/Directorate3, p, p, 777
+Directorate4, mapr, 0, true, 120, /Temp/Directorate4, p, p, 777

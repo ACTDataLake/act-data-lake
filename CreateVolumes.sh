@@ -1,32 +1,33 @@
 #!/bin/bash
 
-#Description: Creates the Data volume and a volume for each listing in directorates.name
+#Description: Creates a volume for each listing in directorates.name
 #Author: Robert A. Marshall
 #Date: 12/10/2017
 #Authorized by:
-#Last Modified: 12/10/2017
+#Last Modified: 17/10/2017
 #Audit Log:
+#Notes: The script assumes that the script and directorates.name are in the same location. Script does not ignore comments in the directorates.name file.
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Clear the screen
 clear
 
 #Variables
-VolumeName=Data
-VolumePath=/Data
-BS=/
 DirectoratesFile=/directorates.name #Assumes that .name file is in same location as script file
 DirectoratesFilePath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)$DirectoratesFile"
 
 #Body
 if [ $USER = mapr ]; then
-        echo Creating Data Volume
-        maprcli volume create -name $VolumeName -ae mapr -aetype 0  -auditenabled true -coalesce 120 -path $VolumePath -readAce p -writeAce p -rootdirperms 777
-
-        while read -r line
+        while IFS=', ' read -r volName volAE volAEType volAudit volCoalesce volPath volReadAce volWriteAce volPermissions
         do
-                echo Creating "$line" Volume
-                maprcli volume create -name $line -ae mapr -aetype 0  -auditenabled true -coalesce 120 -path $VolumePath$BS$line -readAce p -writeAce p -rootdirperms 777
+                echo Creating the $volName volume
+                maprcli volume create -createparent 1 -name $volName -ae $volAE -aetype $volAEType -auditenabled $volAudit -coalesce $volCoalesce -path $volPath -readAce $volReadAce -writeAce $volWriteAce -rootdirperms $volPermissions
+        mountDir=$(maprcli volume info -name $volName -columns "mountdir") #Checks if volume created
+        if [ "$volPath" == ${mountDir#"mountdir"} ]; then #Spits out a generic 'too many arguments' error if the mount directory is not found.
+                        echo Succesfully created the $volName volume
+                else
+                        echo WARNING: The $volName volume was not succesfully created!
+        fi
         done < "$DirectoratesFilePath"
         echo Create Volumes Script Completed.
 else
