@@ -1,26 +1,44 @@
 #!/bin/bash
 
-#Variables
-VolumesFile=/volumes.name #Assumes that .name file is in same location as script file 
-VolumesFilePath="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)$VolumesFile" 
+#Description: Lists mounted volumes with /Data as root.
+#Author: Robert A. Marshall
+#Date: 16/11/17
+#Authorised by:
+#Last Modified: 16/11/17
+#Audit Log:
+#Notes:
+#--------------------------------------------------------------------#
 
+#Variables
 indent="     "
 ind1="%5s"
 ind2="%10s"
 ind3="%15s"
 ind4="%20s"
 
-#Main
+#Body
 printf "\n%20s###VOLUME CHECK###\n"
 
-while IFS='' read -r line || [[ -n "$line" ]]; do #Reads from file
-	volumesArray+=("$line")
-done < "$VolumesFilePath"
+volumesArray=( $(maprcli volume list -filter [mt==1]and[p=="/Data*"] -columns mountdir) ) #All mounted volumes beggining with /Data
 
-#maprcli volume list -columns mountdir THIS PULLS ALL VOLUMES - USE THIS (CHECK CURRENT TICKET IS KOSHER)
-
+#Sort volumes into the root, directorate, BU, BS and Landing/Processed levels
 arraylength=${#volumesArray[@]}
-for (( i=1; i<${arraylength}+1; i++ ));
+
+#Naming Conventions check
+for (( i=2; i<${arraylength}+1; i++ ));
+do
+	result=`python NameCompliance.py "${volumesArray[$i-1]}" "Path"`
+	if [ "$result" != "" ]; then
+        	echo $result
+        fi
+	result=`python VolumeNameCompliance.py "${volumesArray[$i-1]}"`
+	if [ "$result" != "" ]; then
+        	echo $result
+	fi
+done
+
+
+for (( i=2; i<${arraylength}+1; i++ )); #Starts at 2 to skip the heading row of the mapcrli volume list
 do
 	if [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 1 ]; then
 		rootArray+=("${volumesArray[$i-1]}")
@@ -37,6 +55,7 @@ do
 	fi
 done
 
+#Name checks and sorts Landing/Processed volumes
 for (( i=1; i<${#landingOrProcessedArray[@]}+1; i++ ));
 do
 	volumeName=${landingOrProcessedArray[$i-1]}
@@ -50,6 +69,7 @@ do
 	fi
 done
 
+#Reports on volume numbers
 rootLength=${#rootArray[@]}
 directoratesLength=${#directoratesArray[@]}
 businessUnitsLength=${#businessUnitsArray[@]}
@@ -66,6 +86,7 @@ printf "$indent""%-18s %s\n" "Business Systems" "| $businessSystemsLength"
 printf "$indent""%-18s %s\n" "Landing" "| $landingLength"
 printf "$indent""%-18s %s\n" "Processed" "| $processedLength"
 
+#Report if there is an incorrect number of landing or processed volumes for the number of business systems
 if [ $businessSystemsLength != $landingLength ] || [ $businessSystemsLength != $processedLength ];then
 	printf "\nERROR: THERE ARE MISSING LANDING AND/OR PROCESSED VOLUMES!\n"
 fi
@@ -103,7 +124,7 @@ do
 
 							done
 							if [[ $landingPresent = 0 ]]; then
-								printf "$ind4/""ERROR: NO LANDING VOLUME FOUND\n"
+								printf "$ind4""ERROR: NO LANDING VOLUME FOUND\n"
 							fi
 
 							processedPresent=0
@@ -116,21 +137,56 @@ do
 							if [[ $processedPresent = 0 ]]; then
 								printf "$ind4""ERROR: NO PROCESSED VOLUME FOUND\n"
 							fi
-
+							businessSystemsArray[$d-1]="Done"
 						fi
 					done
+					businessUnitsArray[$c-1]="Done"
 				fi
 			done
+			directoratesArray[$b-1]="Done"
 		fi
 	done
+	rootArray[$i-1]="Done"
 done
 
 printf "\n"
 
-#all=""
-#for path in $dir/*; do
-#    filePath="$dir/file.txt"
-#    all="$all I=$filePath"    #without $
-#done
-#echo $all
+#Report any volumes that weren't found in the mount directory diagram
+for entry in "${rootArray[@]}"
+do
+        if [[ $entry != "Done" ]]; then
+                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+        fi
+done
+for entry in "${directoratesArray[@]}"
+do
+        if [[ $entry != "Done" ]]; then
+                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+        fi
+done
+for entry in "${businessUnitsArray[@]}"
+do
+        if [[ $entry != "Done" ]]; then
+                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+        fi
+done
+for entry in "${businessSystemsArray[@]}"
+do
+        if [[ $entry != "Done" ]]; then
+                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+        fi
+done
+for entry in "${landingArray[@]}"
+do
+        if [[ $entry != "Done" ]]; then
+                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+        fi
+done
+for entry in "${processedSystemsArray[@]}"
+do
+	if [[ $entry != "Done" ]]; then
+		printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+	fi
+done
 
+printf "\n"
