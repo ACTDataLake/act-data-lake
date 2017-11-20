@@ -26,7 +26,7 @@ if stringType != "" and stringType != "Version" and stringType != "Path":
 	print 'ERROR: >>>', inputString, '<<< submitted with invalid second argument. Second argument should be "Version" or "Path" if present.'
 
 #Length limit
-if stringSize >= stringSizeLimit:
+if stringSize > stringSizeLimit:
 	print 'ERROR: >>>', inputString, '<<< is too long.'
 
 #No whitespace characters
