@@ -1,23 +1,12 @@
 ************************************************************
-This test scripts is to automate the testing of MapR cluster
-and test some functionalities in HIVE
+These scripts are to run tests and create reports for the
+ACT Data Lake.
 
-Preliminary Step
+The files in /Unit Test are for testing of the MapR cluster
+and some functionalities in HIVE.
 
-Step a: Run VolumeCreation.sh to create volumes in the MapR Cluster
-
-Main Step
-
-Step 1. Run MapRClusterCheck.sh to perform cluster check
-
-Step 2. Run TestRun.sh to perform HIVE functionality check
-
-Step 3. Run LogAudit_Test.sh to enbale auditing and expand the audit logs
-
-
-All the files shall be stored under /TestScripts directory
-
-All the steps will be automated  in the future
+The files in /MaprContentTests are for testing against the
+naming conventions and to generate reports on MapR.
 
 ************************************************************
 

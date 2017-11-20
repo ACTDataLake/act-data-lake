@@ -14,7 +14,7 @@ import sys
 inputString = sys.argv[1]
 
 #Includes at least one suffix marked by an underscore.
-underScoreCount = len(re.findall('._.', inputString))
+underScoreCount = len(re.findall('_', inputString))
 if underScoreCount < 1:
         print 'ERROR: >>>', inputString, '<<< is missing a suffix seperated by an underscore.'
 if underScoreCount > 1:
