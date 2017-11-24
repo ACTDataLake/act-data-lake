@@ -20,8 +20,7 @@ if not searchObj:
 
 #Ends with a suffix
 underScoreCount = len(re.findall('_.', inputString))
-if underScoreCount < 2:
+if underScoreCount != 2:
 	print 'ERROR: >>>', inputString, '<<< is missing a prefix or suffix.'
 
 sys.exit(0)
-

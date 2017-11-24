@@ -15,57 +15,95 @@ ind1="%5s"
 ind2="%10s"
 ind3="%15s"
 ind4="%20s"
+errorOutput=""
+errorCount=0
+root="/Data"
 
 #Body
 printf "\n%20s###VOLUME CHECK###\n"
 
-volumesArray=( $(maprcli volume list -filter [mt==1]and[p=="/Data*"] -columns mountdir) ) #All mounted volumes beggining with /Data
+volumesArray=()
+
+if [[ $# != 0 ]]; then
+        volumesArray+=( "$root" )
+	for arg in "$@"
+	do
+		tempArray=()
+		tempArray+=( $(maprcli volume list -filter [mt==1]and[p=="$root/$arg*"] -columns mountdir) ) 
+		for tempItem in "${tempArray[@]}"
+		do
+			if [ "$tempItem" != "mountdir" ]; then
+				volumesArray+=("$tempItem")
+			fi
+		done
+		if [ "${#tempArray[@]}" == 0 ]; then
+			 printf "\nERROR: ""$arg"" is not a known directory.\n"
+		fi
+	done
+else
+	tempArray=( $(maprcli volume list -filter [mt==1]and[p=="$root*"] -columns mountdir) ) #All mounted volumes beggining with /Data
+	for tempItem in "${tempArray[@]}"
+        do
+        	if [ "$tempItem" != "mountdir" ]; then
+        		volumesArray+=("$tempItem")
+        	fi
+        done
+fi
+
+
+
+#volumesArray=( $(maprcli volume list -filter [mt==1]and[p=="/Data*"] -columns mountdir) ) #All mounted volumes beggining with /Data
 
 #Sort volumes into the root, directorate, BU, BS and Landing/Processed levels
 arraylength=${#volumesArray[@]}
 
 #Naming Conventions check
-for (( i=2; i<${arraylength}+1; i++ ));
+for (( i=0; i<${arraylength}; i++ ));
 do
+	tempError=""
 	result=`python NameCompliance.py "${volumesArray[$i-1]}" "Path"`
 	if [ "$result" != "" ]; then
-        	echo $result
+        	tempError="${tempError}""$indent""$result""\n"
         fi
 	result=`python VolumeNameCompliance.py "${volumesArray[$i-1]}"`
 	if [ "$result" != "" ]; then
-        	echo $result
+        	tempError="${tempError}""$indent""$result""\n"
+	fi
+	if [ "$tempError" != "" ]; then
+		errorOutput="${errorOutput}""${volumesArray[$i-1]}""\n""$tempError"
+		((errorCount++))
 	fi
 done
 
 
-for (( i=2; i<${arraylength}+1; i++ )); #Starts at 2 to skip the heading row of the mapcrli volume list
+for (( i=0; i<${arraylength}; i++ )); #Starts at 2 to skip the heading row of the mapcrli volume list
 do
-	if [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 1 ]; then
-		rootArray+=("${volumesArray[$i-1]}")
-	elif [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 2 ]; then
-		directoratesArray+=("${volumesArray[$i-1]}")
-	elif [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 3 ]; then
-		businessUnitsArray+=("${volumesArray[$i-1]}")
-	elif [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 4 ]; then
-		businessSystemsArray+=("${volumesArray[$i-1]}")
-	elif [ "$(echo ${volumesArray[$i-1]} | tr -c -d '/' | wc -c)" -eq 5 ]; then
-		landingOrProcessedArray+=("${volumesArray[$i-1]}")
+	if [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 1 ]; then
+		rootArray+=("${volumesArray[$i]}")
+	elif [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 2 ]; then
+		directoratesArray+=("${volumesArray[$i]}")
+	elif [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 3 ]; then
+		businessUnitsArray+=("${volumesArray[$i]}")
+	elif [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 4 ]; then
+		businessSystemsArray+=("${volumesArray[$i]}")
+	elif [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 5 ]; then
+		landingOrProcessedArray+=("${volumesArray[$i]}")
 	else
-		printf "\nERROR: Volume [" "${volumesArray[$i-1]}"  "] entry does not comply to standard structure."
+		printf "\nERROR: Volume ""${volumesArray[$i]}"" entry does not comply to standard structure."
 	fi
 done
 
 #Name checks and sorts Landing/Processed volumes
-for (( i=1; i<${#landingOrProcessedArray[@]}+1; i++ ));
+for (( i=0; i<${#landingOrProcessedArray[@]}; i++ ));
 do
 	volumeName=${landingOrProcessedArray[$i-1]}
         volumeName="${volumeName##*/}"
 	if [ "$volumeName" == "Landing" ]; then
-		landingArray+=("${landingOrProcessedArray[$i-1]}")
+		landingArray+=("${landingOrProcessedArray[$i]}")
 	elif [ "$volumeName" == "Processed" ]; then
-		processedArray+=("${landingOrProcessedArray[$i-1]}")
+		processedArray+=("${landingOrProcessedArray[$i]}")
 	else
-		printf "\nERROR: ${landingOrProcessedArray[$i-1]} is not a valid Landing or Processing volume!\n"
+		printf "\nERROR: ${landingOrProcessedArray[$i]} is not a valid Landing or Processing volume!\n"
 	fi
 done
 
@@ -85,40 +123,62 @@ printf "$indent""%-18s %s\n" "Business Units" "| $businessUnitsLength"
 printf "$indent""%-18s %s\n" "Business Systems" "| $businessSystemsLength"
 printf "$indent""%-18s %s\n" "Landing" "| $landingLength"
 printf "$indent""%-18s %s\n" "Processed" "| $processedLength"
+printf "$indent""%-18s %s\n" "Non-Compliant" "| $errorCount"
 
 #Report if there is an incorrect number of landing or processed volumes for the number of business systems
 if [ $businessSystemsLength != $landingLength ] || [ $businessSystemsLength != $processedLength ];then
 	printf "\nERROR: THERE ARE MISSING LANDING AND/OR PROCESSED VOLUMES!\n"
 fi
 
+printf "\n"
+
+display=""
+read -r -p "Display Volumes Map? [Y/N] " response
+if [[ "$response" =~ ^([yY][eE][sS]|[yY])+$ ]]
+then
+    display="Yes"
+else
+    display="No"
+fi
+
+if [ "$display" == "Yes" ]; then
+
+printf "\nNon-Compliant Volumes: \n"
+if [ "$errorCount" != 0 ]; then
+	printf "$errorOutput"
+else
+	printf "None\n"
+fi
+
+
 printf "\nVolume Map: \n"
 
 # Volume Path Diagram
-for (( i=1; i<${rootLength}+1; i++ )); #For each root
+for (( i=0; i<${rootLength}; i++ )); #For each root
 do
 	printf "${rootArray[$i-1]}\n"
-	for (( b=1; b<${directoratesLength}+1; b++ )); #Check if matching Directorate volumes
+	for (( b=0; b<${directoratesLength}; b++ )); #Check if matching Directorate volumes
 	do
-		if [[ ${directoratesArray[$b-1]} == *"${rootArray[$i-1]}"* ]]; then
-			directorateVolumeName=${directoratesArray[$b-1]}
+		if [[ ${directoratesArray[$b]} == *"${rootArray[$i]}"* ]]; then
+			directorateVolumeName=${directoratesArray[$b]}
 			printf "$ind1/${directorateVolumeName##*/}\n"
 			
-			for (( c=1; c<${businessUnitsLength}+1; c++ )); #Check if the directorate volume has business units
+			for (( c=0; c<${businessUnitsLength}; c++ )); #Check if the directorate volume has business units
         		do
-				if [[ ${businessUnitsArray[$c-1]} == *"${directoratesArray[$b-1]}"* ]]; then
-                        		bUVolumeName=${businessUnitsArray[$c-1]}
+				if [[ ${businessUnitsArray[$c]} == *"${directoratesArray[$b]}"* ]]; then
+                        		bUVolumeName=${businessUnitsArray[$c]}
                         		printf "$ind2/${bUVolumeName##*/}\n"
 					
-					for (( d=1; d<${businessSystemsLength}+1; d++ )); #Check if the business unit has business systems
+					for (( d=0; d<${businessSystemsLength}; d++ )); #Check if the business unit has business systems
                         		do
-						if [[ ${businessSystemsArray[$d-1]} == *"${businessUnitsArray[$c-1]}"* ]]; then
-                                        		bSVolumeName=${businessSystemsArray[$d-1]}
+						if [[ ${businessSystemsArray[$d]} == *"${businessUnitsArray[$c]}"* ]]; then
+                                        		bSVolumeName=${businessSystemsArray[$d]}
                                         		printf "$ind3/${bSVolumeName##*/}\n"
 							
 							landingPresent=0
-							for (( e=1; e<${landingLength}+1; e++ )); #Check if the business system has Landing
+							for (( e=0; e<${landingLength}; e++ )); #Check if the business system has Landing
 		                                        do
-								if [[ ${landingArray[$e-1]} == *"$bSVolumeName"* ]]; then
+								if [[ ${landingArray[$e]} == *"$bSVolumeName"* ]]; then
 									((landingPresent++))
 								fi
 
@@ -128,25 +188,25 @@ do
 							fi
 
 							processedPresent=0
-							for (( f=1; f<${processedLength}+1; f++ )); #Check if the business system has Processed
+							for (( f=0; f<${processedLength}; f++ )); #Check if the business system has Processed
 							do
-								if [[ ${processedArray[$f-1]} == *"$bSVolumeName"* ]]; then
+								if [[ ${processedArray[$f]} == *"$bSVolumeName"* ]]; then
 									((processedPresent++))
 								fi
 							done
 							if [[ $processedPresent = 0 ]]; then
 								printf "$ind4""ERROR: NO PROCESSED VOLUME FOUND\n"
 							fi
-							businessSystemsArray[$d-1]="Done"
+							businessSystemsArray[$d]="Done"
 						fi
 					done
-					businessUnitsArray[$c-1]="Done"
+					businessUnitsArray[$c]="Done"
 				fi
 			done
-			directoratesArray[$b-1]="Done"
+			directoratesArray[$b]="Done"
 		fi
 	done
-	rootArray[$i-1]="Done"
+	rootArray[$i]="Done"
 done
 
 printf "\n"
@@ -189,4 +249,6 @@ do
 	fi
 done
 
-printf "\n"
+fi
+
+

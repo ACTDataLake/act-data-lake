@@ -29,4 +29,3 @@ if underScoreCount != 3:
         print 'ERROR: >>>', inputString, '<<< format is incorrect or not correctly marked with underscores.'
 
 sys.exit(0)
-
