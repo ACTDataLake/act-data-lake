@@ -19,6 +19,8 @@ errorOutput=""
 errorCount=0
 root="/Data"
 
+. reportConfig.config #Loads $namingTestsDirectory
+
 #Body
 printf "\n%20s###VOLUME CHECK###\n"
 
@@ -50,33 +52,28 @@ else
         done
 fi
 
-
-
-#volumesArray=( $(maprcli volume list -filter [mt==1]and[p=="/Data*"] -columns mountdir) ) #All mounted volumes beggining with /Data
-
-#Sort volumes into the root, directorate, BU, BS and Landing/Processed levels
 arraylength=${#volumesArray[@]}
 
 #Naming Conventions check
 for (( i=0; i<${arraylength}; i++ ));
 do
 	tempError=""
-	result=`python NameCompliance.py "${volumesArray[$i-1]}" "Path"`
+	result=`python "$namingTestsDirectory"NameCompliance.py "${volumesArray[$i]}" "Path"`
 	if [ "$result" != "" ]; then
         	tempError="${tempError}""$indent""$result""\n"
         fi
-	result=`python VolumeNameCompliance.py "${volumesArray[$i-1]}"`
+	result=`python "$namingTestsDirectory"VolumeNameCompliance.py "${volumesArray[$i]}"`
 	if [ "$result" != "" ]; then
         	tempError="${tempError}""$indent""$result""\n"
 	fi
 	if [ "$tempError" != "" ]; then
-		errorOutput="${errorOutput}""${volumesArray[$i-1]}""\n""$tempError"
+		errorOutput="${errorOutput}""${volumesArray[$i]}""\n""$tempError"
 		((errorCount++))
 	fi
 done
 
-
-for (( i=0; i<${arraylength}; i++ )); #Starts at 2 to skip the heading row of the mapcrli volume list
+#Sort volumes into the root, directorate, BU, BS and Landing/Processed levels
+for (( i=0; i<${arraylength}; i++ ));
 do
 	if [ "$(echo ${volumesArray[$i]} | tr -c -d '/' | wc -c)" -eq 1 ]; then
 		rootArray+=("${volumesArray[$i]}")
@@ -96,7 +93,7 @@ done
 #Name checks and sorts Landing/Processed volumes
 for (( i=0; i<${#landingOrProcessedArray[@]}; i++ ));
 do
-	volumeName=${landingOrProcessedArray[$i-1]}
+	volumeName=${landingOrProcessedArray[$i]}
         volumeName="${volumeName##*/}"
 	if [ "$volumeName" == "Landing" ]; then
 		landingArray+=("${landingOrProcessedArray[$i]}")
@@ -156,7 +153,7 @@ printf "\nVolume Map: \n"
 # Volume Path Diagram
 for (( i=0; i<${rootLength}; i++ )); #For each root
 do
-	printf "${rootArray[$i-1]}\n"
+	printf "${rootArray[$i]}\n"
 	for (( b=0; b<${directoratesLength}; b++ )); #Check if matching Directorate volumes
 	do
 		if [[ ${directoratesArray[$b]} == *"${rootArray[$i]}"* ]]; then

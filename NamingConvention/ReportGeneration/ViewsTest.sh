@@ -18,17 +18,18 @@ currentDirectory=$(pwd)
 
 count=0
 
+. reportConfig.config #Loads $dataDirectory and $namingTestsDirectory
+
 #Body
-cd /
 
-cd mapr/mapr.test.act.gov.au/Data/
-
+cd "$dataDirectory"
 shopt -s nullglob
 tempDirectoryArray=(*/)
 shopt -u nullglob # Turn off nullglob
 
 printf "\n%20s###VIEWS CHECK###\n\n"
 
+#Create list of directories, limit by arguments if present
 if [[ $# != 0 ]]; then
 	shopt -s nullglob
 	for arg in "$@"
@@ -45,10 +46,11 @@ else
 	do
 		directoryArray+=(${dirTemp: : -1})
 	done
-	#directoryArray=(*/)
 fi
 
 arraylength=${#directoryArray[@]}
+
+printf "\nTest Location\n"
 
 #Build the views diagram output string
 errorCount=0
@@ -56,10 +58,8 @@ for (( i=0; i<${arraylength}; i++ ));
 do
 	directoryName="${directoryArray[$i]}"
 	output="${output}""/""$directoryName""\n"
-	#errorOutput="${errorOutput}""/""$directoryName""\n"
 	dirError=""
-	cd /
-	cd "mapr/mapr.test.act.gov.au/Data/""$directoryName"
+	cd "$dataDirectory""$directoryName"
 	shopt -s nullglob
 	tempArray=(*)
 	shopt -u nullglob
@@ -74,11 +74,11 @@ do
 				viewArray+=("$fileName")
 				cd "$currentDirectory"
 				tempError=""
-			        result=`python NameCompliance.py "$fileName"`
+			        result=`python "$namingTestsDirectory"NameCompliance.py "$fileName"`
         			if [ "$result" != "" ]; then
                 			tempError="${tempError}""$result""\n"
 			        fi
-			        result=`python AccessViewsNameCompliance.py "$fileName"`
+			        result=`python "$namingTestsDirectory"AccessViewsNameCompliance.py "$fileName"`
 			        if [ "$result" != "" ]; then
 		                	tempError="${tempError}""$result""\n"
 			        fi
@@ -86,16 +86,12 @@ do
 			                dirError="${dirError}""$indent""$x""\n""$tempError"
 			                ((errorCount++))
 			        fi
-				cd /
-			        cd "mapr/mapr.test.act.gov.au/Data/""${directoryArray[$i]}"
 			fi
 		fi 
 	done
 	if [ "$dirError" != "" ]; then
 		errorOutput="${errorOutput}""/""$directoryName""\n""$dirError"
 	fi
-	#output="${output}"
-	cd ..
 done
 
 #Report View numbers

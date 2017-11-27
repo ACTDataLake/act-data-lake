@@ -13,7 +13,9 @@ prefix="  \"title\" : \""
 suffix="\","
 indent="     "
 
-streamIDArray=($(ls /var/lib/sdc/pipelines/))
+. reportConfig.config #Loads  $dataDirectory, $namingTestsDirectory and $streamsetsDirectory
+
+streamIDArray=($(ls "$streamsetsDirectory"))
 streamTitlesArray=()
 nonCompliantCount=0
 
@@ -27,7 +29,7 @@ do
                 	string=${string%$suffix}
 			streamTitlesArray+=("$string")
         	fi
-	done < /var/lib/sdc/pipelines/"$entry"/info.json
+	done < "$streamsetsDirectory""$entry"/info.json
 
 done
 
@@ -38,12 +40,12 @@ for entry in "${streamTitlesArray[@]}"
 do
 	compliantCheck=0
 	outputString="${outputString}""$entry""\n"
-	result=`python NameCompliance.py "$entry" "Version"`
+	result=`python "$namingTestsDirectory"NameCompliance.py "$entry" "Version"`
 	if [ "$result" != "" ]; then
         	outputString="${outputString}""$result""\n"
 		compliantCheck=1
         fi
-	result=`python StreamsetsJobNameCompliance.py "$entry"`
+	result=`python "$namingTestsDirectory"StreamsetsJobNameCompliance.py "$entry"`
 	if [ "$result" != "" ]; then
 		outputString="${outputString}""$result""\n"
         	compliantCheck=1
