@@ -33,3 +33,4 @@ if [ $USER = mapr ]; then
 else
         echo ERROR: This script must be run as super user mapr. No volumes created.
 fi
+
