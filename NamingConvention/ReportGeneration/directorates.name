@@ -1,0 +1,12 @@
+Data, mapr, 0, true, 120, /Data, p, p, 777
+SSICT, mapr, 0, true, 120, /Data/CMTEDD/SSICT, p, p, 777
+Landing, mapr, 0, true, 120, /Data/CMTEDD/SSICT/Landing, p, p, 777
+Processed, mapr, 0, true, 120, /Data/CMTEDD/SSICT/Processed, p, p, 777
+SacrificialOfferings, mapr, 0, true, 120, /Data/CMTEDD/SSICT/SacrificialOfferings, p, p, 777
+SOLanding, mapr, 0, true, 120, /Data/CMTEDD/SSICT/SacrificialOfferings/Landing, p, p, 777
+SOProcessed, mapr, 0, true, 120, /Data/CMTEDD/SSICT/SacrificialOfferings/Processed, p, p, 777
+Health, mapr, 0, true, 120, /Data/Health, p, p, 777
+Supply, mapr, 0, true, 120, /Data/Health/Supply/, p, p, 777
+GloveCounter, mapr, 0, true, 120, /Data/Health/Supply/GloveCounter, p, p, 777
+GCLanding, mapr, 0, true, 120, /Data/Health/Supply/GloveCounter/Landing, p, p, 777
+GCProcessed, mapr, 0, true, 120, /Data/Health/Supply/GloveCounter/Processed, p, p, 777

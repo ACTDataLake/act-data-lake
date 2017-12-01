@@ -50,8 +50,6 @@ fi
 
 arraylength=${#directoryArray[@]}
 
-printf "\nTest Location\n"
-
 #Build the views diagram output string
 errorCount=0
 for (( i=0; i<${arraylength}; i++ ));

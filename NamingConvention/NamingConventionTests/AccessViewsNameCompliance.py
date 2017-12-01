@@ -16,11 +16,11 @@ inputString = sys.argv[1]
 #Begins with "View_"
 searchObj = re.search('^View_', inputString)
 if not searchObj:
-        print 'ERROR: >>>', inputString, '<<< does not begin with "View_".'
+        print 'ERROR: >>>', inputString, '<<< does not begin with View_.'
 
 #Ends with a suffix
 underScoreCount = len(re.findall('_.', inputString))
 if underScoreCount != 2:
-	print 'ERROR: >>>', inputString, '<<< is missing a prefix or suffix.'
+	print 'ERROR: >>>', inputString, '<<< should contain underscores only for a prefix/suffix.'
 
 sys.exit(0)

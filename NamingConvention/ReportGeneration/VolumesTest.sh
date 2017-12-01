@@ -123,9 +123,9 @@ printf "$indent""%-18s %s\n" "Processed" "| $processedLength"
 printf "$indent""%-18s %s\n" "Non-Compliant" "| $errorCount"
 
 #Report if there is an incorrect number of landing or processed volumes for the number of business systems
-if [ $businessSystemsLength != $landingLength ] || [ $businessSystemsLength != $processedLength ];then
-	printf "\nERROR: THERE ARE MISSING LANDING AND/OR PROCESSED VOLUMES!\n"
-fi
+#if [ $businessSystemsLength != $landingLength ] || [ $businessSystemsLength != $processedLength ];then
+#	printf "\nERROR: THERE ARE MISSING LANDING AND/OR PROCESSED VOLUMES!\n"
+#fi
 
 printf "\n"
 
@@ -172,29 +172,31 @@ do
                                         		bSVolumeName=${businessSystemsArray[$d]}
                                         		printf "$ind3/${bSVolumeName##*/}\n"
 							
-							landingPresent=0
+							#landingPresent=0
 							for (( e=0; e<${landingLength}; e++ )); #Check if the business system has Landing
 		                                        do
 								if [[ ${landingArray[$e]} == *"$bSVolumeName"* ]]; then
-									((landingPresent++))
+									lanVolumeName=${landingArray[$e]}
+									printf "$ind4/${lanVolumeName##*/}\n"
+									#((landingPresent++))
 								fi
-
 							done
-							if [[ $landingPresent = 0 ]]; then
-								printf "$ind4""ERROR: NO LANDING VOLUME FOUND\n"
-							fi
+							#if [[ $landingPresent = 0 ]]; then
+							#	printf "$ind4""ERROR: NO LANDING VOLUME FOUND\n"
+							#fi
 
-							processedPresent=0
+							#processedPresent=0
 							for (( f=0; f<${processedLength}; f++ )); #Check if the business system has Processed
 							do
 								if [[ ${processedArray[$f]} == *"$bSVolumeName"* ]]; then
-									((processedPresent++))
+									procVolumeName=${processedArray[$f]}
+                                                                        printf "$ind4/${procVolumeName##*/}\n"
+									#((processedPresent++))
 								fi
 							done
-							if [[ $processedPresent = 0 ]]; then
-								printf "$ind4""ERROR: NO PROCESSED VOLUME FOUND\n"
-							fi
-							businessSystemsArray[$d]="Done"
+							#if [[ $processedPresent = 0 ]]; then
+							#	printf "$ind4""ERROR: NO PROCESSED VOLUME FOUND\n"
+							#fi						
 						fi
 					done
 					businessUnitsArray[$c]="Done"
@@ -209,43 +211,43 @@ done
 printf "\n"
 
 #Report any volumes that weren't found in the mount directory diagram
-for entry in "${rootArray[@]}"
-do
-        if [[ $entry != "Done" ]]; then
-                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-        fi
-done
-for entry in "${directoratesArray[@]}"
-do
-        if [[ $entry != "Done" ]]; then
-                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-        fi
-done
-for entry in "${businessUnitsArray[@]}"
-do
-        if [[ $entry != "Done" ]]; then
-                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-        fi
-done
-for entry in "${businessSystemsArray[@]}"
-do
-        if [[ $entry != "Done" ]]; then
-                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-        fi
-done
-for entry in "${landingArray[@]}"
-do
-        if [[ $entry != "Done" ]]; then
-                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-        fi
-done
-for entry in "${processedSystemsArray[@]}"
-do
-	if [[ $entry != "Done" ]]; then
-		printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
-	fi
-done
-
+#for entry in "${rootArray[@]}"
+#do
+#        if [[ $entry != "Done" ]]; then
+#                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#        fi
+#done
+#for entry in "${directoratesArray[@]}"
+#do
+#        if [[ $entry != "Done" ]]; then
+#                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#        fi
+#done
+#for entry in "${businessUnitsArray[@]}"
+#do
+#        if [[ $entry != "Done" ]]; then
+#                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#        fi
+#done
+#for entry in "${businessSystemsArray[@]}"
+#do
+#        if [[ $entry != "Done" ]]; then
+#                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#        fi
+#done
+#for entry in "${landingArray[@]}"
+#do
+#        if [[ $entry != "Done" ]]; then
+#                printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#        fi
+#done
+#for entry in "${processedArray[@]}"
+#do
+#	if [[ $entry != "Done" ]]; then
+#		printf "ERROR: $entry not found in volume map. Missing parent volume(s).\n"
+#	fi
+#done
+#
 fi
 
 

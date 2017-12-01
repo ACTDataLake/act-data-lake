@@ -27,6 +27,6 @@ elif databaseType == "Processed":
 	if underscoreCount > 0:
 		print 'ERROR: >>>', inputString, '<<< must not contain underscores.'
 else:
-	print 'ERROR:', databaseType, 'is not a recognised argument - please check your test code.'
+	print 'ERROR: .db files must be in a Landing or Processed directory.'
 
 sys.exit(0)

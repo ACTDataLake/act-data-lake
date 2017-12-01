@@ -5,7 +5,7 @@ ACT Data Lake.
 The files in /Unit Test are for testing of the MapR cluster
 and some functionalities in HIVE.
 
-The files in /MaprContentTests are for testing against the
+The files in /NamingConvention are for testing against the
 naming conventions and to generate reports on MapR.
 
 ************************************************************

@@ -11,23 +11,29 @@
 
 . reportConfig.config
 
+
+
 if [ ! -d "$dataDirectory" ]; then
-	printf "\nERROR: ""$dataDirectory"" does not exist.\n"
+	printf "\nERROR: Data Directory not found.\n"
 	exit
 fi
-if [ ! -d "$namingTests" ]; then
-	printf "\nERROR: ""$namingTests"" does not exist.\n"
+if [ ! -d "$namingTestsDirectory" ]; then
+	printf "\nERROR: Naming Tests Directory not found.\n"
 	exit
 fi
 
 scriptDirectory=$(pwd)
-#clear
+clear
+
+if [[ $# != 0 ]]; then
+	printf "Limiting reports to the following directorates: ""$*""\n"
+fi
 
 #runs scripts
-source "VolumesTest.sh" $@
+./VolumesTest.sh $@
 cd "$scriptDirectory"
-source "ViewsTest.sh" $@
+./Report.sh database "$1"
 cd "$scriptDirectory"
-source "StreamsetsTest.sh"
+./Report.sh view "$1"
 cd "$scriptDirectory"
-
+./StreamsetsTest.sh
