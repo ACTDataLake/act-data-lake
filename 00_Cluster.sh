@@ -1,10 +1,9 @@
 # ===============================================================================================================================
-# Descriptiopn :  Script to test whtther the cluster is secuered or not
-# Author       : Selvaraaju Murugesan
-# Date         : 14/07/2017
-# Authorsed by :
-# Last Modified: 16/10/2017
-# Audi Log     : Added new code to validate some operations
+# Descriptiopn : Script to test installation and status of the cluster
+# Author       : Stuart Wilson
+# Date         : 01/03/2018
+#
+# Based on the fine work by Selvaraaju Murugesan at www.github.com/actgov/act-data-lake
 # ===============================================================================================================================
 
 
@@ -24,9 +23,9 @@ echo -e "\n"
 
 # Test 1 : Test whether the cluster is secure or not 
 
-searchstr="secure=rue"
+searchstr="secure=true"
 file="/opt/mapr/conf/mapr-clusters.conf"
-if grep -q "$searchstr" $file;
+if [grep -q "$searchstr" $file]; then
         echo "Cluster is Secure"
         echo "Test 1 Pass"
 else
